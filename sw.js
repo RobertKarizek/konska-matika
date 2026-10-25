@@ -1,6 +1,6 @@
 /* Service worker: aplikace funguje i bez internetu.
  * Při každé změně souborů zvyš VERZE, ať si telefony stáhnou novou verzi. */
-var VERZE = "konska-matika-1";
+var VERZE = "konska-matika-20261025-090820";
 var SOUBORY = [
   "./", "index.html", "styles.css", "manifest.webmanifest",
   "data/ucivo.js",
