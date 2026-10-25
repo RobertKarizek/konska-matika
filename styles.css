@@ -114,10 +114,17 @@ main { display: flex; flex-direction: column; gap: 14px; }
 .kun-velky { width: min(300px, 78vw); align-self: center; }
 .skace { animation: skok .6s ease-out; }
 @keyframes skok { 0% { transform: translateY(0); } 35% { transform: translateY(-22px) rotate(-3deg); } 70% { transform: translateY(0) rotate(1deg); } 100% { transform: none; } }
-.kun-svg .ocas { transform-origin: 60px 96px; animation: ocas 3.2s ease-in-out infinite; }
-@keyframes ocas { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(6deg); } }
-.kun-svg .oko { transform-origin: 193px 49px; animation: mrk 5s infinite; }
-@keyframes mrk { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+/* „živý“ kůň: dýchá, švihá ocasem, mrká, cuká uchem */
+.kun-svg .trup, .kun-svg .nohy-blizke, .kun-svg .hlava { transform-box: fill-box; }
+.kun-svg .trup { transform-origin: 50% 100%; animation: dech 3.6s ease-in-out infinite; }
+@keyframes dech { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.004, 1.012); } }
+.kun-svg .ocas { transform-box: fill-box; transform-origin: 70% 0; animation: ocas 4.2s ease-in-out infinite; }
+@keyframes ocas { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(7deg); } 86% { transform: rotate(-3deg); } 92% { transform: rotate(4deg); } }
+.kun-svg .oko { transform-box: fill-box; transform-origin: 50% 50%; animation: mrk 5.5s infinite; }
+@keyframes mrk { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+.kun-svg .ucho { transform-box: fill-box; transform-origin: 50% 100%; animation: ucho 7s ease-in-out infinite; }
+@keyframes ucho { 0%, 60%, 100% { transform: rotate(0); } 64% { transform: rotate(-14deg); } 70% { transform: rotate(4deg); } 74% { transform: rotate(0); } }
+.kun-maly .kun-svg .trup, .kun-maly .kun-svg .ocas { animation-duration: 5s; }
 
 /* ---------- výběr koně ---------- */
 .tvorba h2 { font-size: 22px; text-align: center; }
@@ -174,7 +181,7 @@ main { display: flex; flex-direction: column; gap: 14px; }
 .karta-ulohy .bublina.radost::before { border-right-color: #fffbe6; border-bottom-color: transparent; }
 .karta-ulohy .bublina.premysli::before { border-right-color: var(--svetly); border-bottom-color: transparent; }
 .zadani { grid-column: 1 / -1; margin: 6px 0 0; text-align: center; font-size: clamp(40px, 13vw, 64px); font-weight: 800; letter-spacing: 1px; outline: 0; }
-.predcist { position: absolute; right: 10px; bottom: 10px; width: 40px; height: 40px; box-shadow: none; background: var(--svetly); }
+.predcist { grid-column: 2; grid-row: 2; justify-self: end; align-self: start; width: 40px; height: 40px; box-shadow: none; background: var(--svetly); }
 .moznosti { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .moznost {
   position: relative; border: 0; border-radius: 22px; background: #fff; min-height: 84px;
@@ -274,3 +281,127 @@ main { display: flex; flex-direction: column; gap: 14px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
 }
+
+/* ========== rozšíření: realistický kůň, kamarádi, nové úlohy ========== */
+.kun-obal { position: relative; }
+.kun-obal.leskne::after { content: ""; position: absolute; inset: 10% 20% 40% 18%; background: radial-gradient(ellipse at 40% 40%, rgba(255,255,255,.45), transparent 60%); pointer-events: none; animation: lesk 3s ease-in-out infinite; }
+@keyframes lesk { 0%, 100% { opacity: .4; } 50% { opacity: .9; } }
+.dvur { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 0; }
+.dvur .kun-velky { position: relative; z-index: 2; }
+.kamarad { position: relative; z-index: 3; margin-left: -6%; flex: none; }
+.kamarad.hribe { width: min(120px, 28vw); }
+.kamarad.ponik { width: min(150px, 34vw); }
+.kamarad.ponik svg { transform: scaleY(.86); transform-origin: bottom; }
+.kamarad.kocka { width: min(70px, 16vw); margin-left: -10%; }
+.kamarad + .kamarad { margin-left: -10%; }
+.staj { position: absolute; left: -2%; bottom: 8%; width: min(170px, 38vw); z-index: 1; opacity: .95; }
+.staj-svg, .kocka-svg { width: 100%; height: auto; display: block; }
+.radek-panel { display: grid; gap: 12px; }
+.tl-velke .ikona { width: 26px; height: 26px; margin-right: 4px; vertical-align: -5px; }
+button.misto.otevreno { border: 0; background: #fff; color: var(--txt); font: inherit; font-size: 15px; font-weight: 700; box-shadow: 0 3px 0 #e6dff0; cursor: pointer; }
+.misto.otevreno small { background: var(--zluta); color: #5a4300; }
+
+/* zadání */
+.zadani.mensi { font-size: clamp(24px, 7vw, 34px); }
+.zadani-text { grid-column: 1 / -1; margin: 8px 0 0; font-size: 20px; font-weight: 700; line-height: 1.35; }
+.slovni-obr { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; opacity: .9; }
+.karta-ulohy .np-osa { grid-column: 1 / -1; }
+.otazka { margin: 4px 0 0; text-align: center; font-weight: 700; font-size: 19px; }
+.sloupec { font-family: ui-monospace, Menlo, monospace; display: inline-grid; justify-self: center; gap: 2px; font-size: clamp(34px, 10vw, 48px); letter-spacing: 0; }
+.sloupec .sl-radek { display: flex; justify-content: flex-end; }
+.sloupec .sl-radek span { width: 1.1ch; text-align: center; }
+.sloupec .sl-cara { height: 4px; background: var(--txt); border-radius: 2px; }
+.sloupec .sl-radek.vysl { min-height: 1.2em; color: var(--akcent2); justify-content: flex-end; letter-spacing: .14ch; }
+.moznosti.znaky .moznost, .moznosti.tri .moznost { font-size: 40px; }
+.moznosti.tri { grid-template-columns: repeat(3, 1fr); }
+
+/* stupňovaná nápověda */
+.np-stupen { padding: 10px 0 4px; border-top: 2px dashed #f1e3b5; animation: objev .3s both; }
+.np-stupen:first-child { border-top: 0; padding-top: 0; }
+.np-stupen h4 { display: flex; align-items: center; gap: 6px; font-size: 16px; color: var(--akcent2); margin: 0 0 6px; }
+.np-ukazka { background: var(--svetly); border-radius: 14px; padding: 10px 14px; font-size: 19px; line-height: 1.6; }
+button.np-rada { width: 100%; border: 2px solid transparent; text-align: left; cursor: pointer; font: inherit; }
+button.np-rada:hover { border-color: var(--zluta); }
+button.np-rada.napocitano { background: #fff0b8; border-color: #e8b52a; }
+.np-mezisoucet { margin-left: auto; font-size: 17px; color: var(--akcent2); }
+.np-stav { margin: 8px 0 0; font-weight: 700; color: var(--akcent2); }
+.np-rozdavani { display: grid; gap: 10px; }
+.np-hromada { border: 3px dashed #e8b52a; background: #fffbe9; border-radius: 16px; padding: 8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; min-height: 60px; cursor: pointer; font: inherit; }
+.np-hromada:disabled { opacity: .6; cursor: default; }
+.np-hromada .ikona { width: 20px; height: 20px; }
+.np-zbyva { width: 100%; text-align: center; font-size: 14px; color: var(--tichy); font-weight: 700; }
+.np-hromadka.hribe { background: #e9f6ff; }
+.np-hromadka small { font-size: 12px; color: var(--tichy); }
+.kunik.mensi { width: 22px !important; height: 22px !important; }
+.np-pm { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.np-pm > div { background: #fff7e3; border-radius: 14px; padding: 8px 10px; text-align: center; }
+.np-op { font-size: 30px; font-weight: 800; background: none !important; }
+.np-mista span { display: inline-flex; flex-wrap: wrap; max-width: 180px; justify-content: center; margin: 2px; }
+.np-osa { width: 100%; height: auto; display: block; margin: 6px 0; }
+.np-tab { border-collapse: collapse; margin: 6px auto; font-size: 22px; font-weight: 800; }
+.np-tab th { font-size: 13px; color: var(--tichy); padding: 2px 8px; }
+.np-tab td { border: 2px solid #e8dcc0; padding: 4px 10px; text-align: center; background: #fff; }
+.sloupec.np { font-size: 28px; display: grid; justify-content: center; }
+.sloupec.np .hlava span { font-size: 12px; color: var(--tichy); }
+.sloupec.np .m1 { color: #d9685a; } .sloupec.np .m2 { color: #3f9e57; } .sloupec.np .m3 { color: #6b4fa0; } .sloupec.np .m4 { color: #b5762a; }
+.poradit { display: inline-flex; align-items: center; gap: 6px; }
+
+/* přetahování */
+.pretahni { display: grid; gap: 12px; }
+.hromada { background: var(--karta); border-radius: var(--r); padding: 10px; box-shadow: var(--stin); touch-action: none; user-select: none; -webkit-user-select: none; }
+.hromada-obsah { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; min-height: 40px; }
+.hromada .vec { cursor: grab; }
+.hromada .vec .ikona { width: 32px; height: 32px; }
+.hromada-pocet { display: block; text-align: center; color: var(--tichy); font-weight: 700; font-size: 14px; }
+.zlaby { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); }
+.zlaby.z3 { grid-template-columns: repeat(3, 1fr); }
+@media (min-width: 640px) { .zlaby.z4 { grid-template-columns: repeat(4, 1fr); } .zlaby.z5 { grid-template-columns: repeat(5, 1fr); } }
+.zlab { border: 3px solid #e0cfae; background: #fffaf0; border-radius: 18px; padding: 6px; min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; cursor: pointer; font: inherit; }
+.zlab.plny { border-color: var(--zelena); background: var(--zelena-svetla); }
+.zlab-obsah { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; }
+.zlab-obsah .ikona { width: 20px; height: 20px; }
+.zlab-ik { width: 56px !important; height: 40px !important; }
+.zlab-pocet { font-weight: 800; font-size: 16px; }
+.duch { position: fixed; z-index: 200; pointer-events: none; transform: translate(-50%, -60%) scale(1.3); }
+.duch .ikona { width: 40px; height: 40px; }
+
+/* pexeso */
+.pexeso { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (min-width: 640px) { .pexeso { grid-template-columns: repeat(4, 1fr); } }
+.pex { position: relative; border: 0; background: transparent; min-height: 86px; perspective: 600px; cursor: pointer; padding: 0; font: inherit; }
+.pex span { position: absolute; inset: 0; border-radius: 18px; display: grid; place-items: center; backface-visibility: hidden; transition: transform .35s; box-shadow: 0 4px 0 #e1d8ec, var(--stin); }
+.pex-rub { background: var(--akcent); }
+.pex-rub .ikona { width: 40px; height: 40px; filter: brightness(1.6); }
+.pex-lic { background: #fff; transform: rotateY(180deg); font-size: 24px; font-weight: 800; }
+.pex-lic.vysl { color: var(--akcent2); font-size: 30px; }
+.pex.otocena .pex-rub { transform: rotateY(180deg); }
+.pex.otocena .pex-lic { transform: rotateY(360deg); }
+.pex.nalezena .pex-lic { background: var(--zelena-svetla); }
+
+/* obchod */
+.zbozi-mrizka { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 640px) { .zbozi-mrizka { grid-template-columns: repeat(3, 1fr); } }
+.zbozi { background: var(--karta); border-radius: var(--r); padding: 12px; box-shadow: var(--stin); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.zbozi.nasazeno { outline: 3px solid var(--zluta); }
+.zbozi-nahled { height: 64px; display: grid; place-items: center; }
+.zbozi-nahled .staj-svg { width: 80px; }
+.zbozi b { font-size: 15px; }
+.zbozi small { color: var(--tichy); font-size: 13px; }
+.zbozi .tl-maly:disabled { opacity: .5; }
+.vzorek.velky { width: 50px; height: 50px; display: block; border-radius: 14px; }
+
+/* závod */
+.draha { position: relative; height: 120px; background: linear-gradient(180deg, transparent 70%, #c98b4e 70%); border-radius: 20px; overflow: hidden; }
+.draha::after { content: ""; position: absolute; left: 0; right: 0; bottom: 16%; border-bottom: 3px dashed rgba(255,255,255,.7); }
+.draha-kun { position: absolute; left: 0; bottom: 4%; width: 120px; transition: left .4s ease-out; }
+.draha-cil { position: absolute; right: 8px; bottom: 34%; background: #fff; border-radius: 8px; padding: 2px 8px; font-weight: 800; }
+.zavod-cas { text-align: center; margin: 0; font-size: 20px; }
+.karta-ulohy.jen-zadani { display: block; }
+
+/* rodiče */
+label.pole { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: 17px; }
+label.pole select { font: inherit; padding: 6px 10px; border-radius: 12px; border: 2px solid var(--linka); background: #fff; }
+.tyden { display: flex; gap: 6px; align-items: flex-end; height: 80px; }
+.tyden .den { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.tyden .den i { width: 70%; background: var(--zelena); border-radius: 6px 6px 0 0; min-height: 3px; }
+.tyden .den small { font-size: 12px; color: var(--tichy); }

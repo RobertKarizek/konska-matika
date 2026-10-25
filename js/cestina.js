@@ -16,6 +16,19 @@
     kus: ["kus", "kusy", "kusů"],
     seno: ["balík sena", "balíky sena", "balíků sena"],
     hvezda: ["hvězdičku", "hvězdičky", "hvězdiček"],
+    kun1: ["kůň", "koně", "koní"],
+    balik: ["balík", "balíky", "balíků"],
+    balik6: ["balíku", "balících", "balících"],          // „v 1 balíku, ve 3 balících“
+    pytel: ["pytel", "pytle", "pytlů"],
+    hribe4: ["hříbě", "hříbata", "hříbat"],
+    kbelik: ["kbelík", "kbelíky", "kbelíků"],
+    km: ["kilometr", "kilometry", "kilometrů"],
+    kolo: ["kolo", "kola", "kol"],
+    vyskok: ["skok", "skoky", "skoků"],
+    minuta: ["minutu", "minuty", "minut"],
+    tisic: ["tisíc", "tisíce", "tisíc"],
+    desitka: ["desítka", "desítky", "desítek"],
+    jednotka: ["jednotka", "jednotky", "jednotek"],
     skok: ["skok", "skoky", "skoků"]
   };
 
@@ -43,8 +56,18 @@
     return pole[Math.floor(Math.random() * pole.length)];
   }
 
+  // číslo s mezerou po tisících: 4352 → „4 352“
+  function cislo(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+
+  // shoda slovesa s počtem: „pase se 1 kůň / pasou se 3 koně / pase se 8 koní“
+  function sloveso(n, jedno, mnoho) { n = Math.abs(n); return n >= 2 && n <= 4 ? mnoho : jedno; }
+
+  // číslice jako slovo: 8 → „osmička“ (1. pád) / „osmičku“ (4. pád)
+  var KA = { 1: "jednička", 2: "dvojka", 3: "trojka", 4: "čtyřka", 5: "pětka", 6: "šestka", 7: "sedmička", 8: "osmička", 9: "devítka", 10: "desítka" };
+  function ka(n, pad) { var t = KA[n] || String(n); return pad === 4 && KA[n] ? t.replace(/a$/, "u") : t; }
+
   window.CZ = {
-    tvar: tvar, pocet: pocet, nahodny: nahodny,
+    tvar: tvar, pocet: pocet, nahodny: nahodny, cislo: cislo, sloveso: sloveso, ka: ka,
     osloveni: function (id) { return OSLOVENI[id] || ""; },
     po: function (n, slovo) { return "po " + n + " " + (PO[slovo] || PO.mrkev); }
   };

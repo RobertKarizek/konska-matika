@@ -25,7 +25,13 @@
       predmety: [],              // koupené věci pro koníka
       mista: ["domov"],          // odemčená místa
       predcitani: false,
-      historie: []               // [{ den, tema, spravne, celkem }]
+      historie: [],              // [{ den, tema, napoprve, celkem }]
+      kamaradi: [],              // kamarádi z výletů (hribe, ponik, kocka)
+      nasazeno: {},              // co má koník na sobě: druh → id věci z obchodu
+      navstiveno: [],            // výlety, kde už holčička byla
+      obtiznost: "normal",       // lehci | normal | tezsi (nastavují rodiče)
+      delkaLekce: 0,             // 0 = výchozí z učiva
+      rekordZavod: 0
     };
   }
 

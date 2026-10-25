@@ -47,10 +47,60 @@
   /* Fáze u násobení jedné řady: 0 po řadě, 1 napřeskáčku, 2 smíšeně (i dělení a chybějící číslo). */
   var FAZE = ["po řadě", "napřeskáčku", "smíšeně"];
 
+  function pocetUloh(profil) { return profil.delkaLekce || window.LEKCE.pocetUloh; }
+  function uroven(profil, tema) {
+    var st = profil.tema[tema.id];
+    if (st && st.uroven) return st.uroven;
+    return profil.obtiznost === "tezsi" ? 2 : 1;
+  }
+
   function sestavLekci(profil, tema) {
+    var n = pocetUloh(profil);
+    if (window.ULOHY2 && window.ULOHY2.umi(tema.druh)) {
+      var ur = uroven(profil, tema), out = [];
+      for (var i = 0; i < n; i++) out.push(window.ULOHY2.uloha(tema, ur));
+      return out;
+    }
+    var ulohy = sestavNasobilku(profil, tema, n);
+    var stavT = profil.tema[tema.id] || { lekci: 0, faze: 0 };
+    var smisene = tema.druh === "nasobilka" || stavT.faze >= 1 || !tema.faze;
+    if (smisene && ulohy.length >= 8) {
+      // jedno přetahování a (ve smíšené fázi) jedno pexeso, ať to není stereotypní
+      var kde = 2 + Math.floor(Math.random() * 3);
+      var p = pretahni(ulohy[kde].fakt, tema);
+      if (p) ulohy[kde] = p;
+      if (tema.druh === "nasobilka" || stavT.faze >= 2) ulohy[ulohy.length - 2] = pexeso(profil, tema);
+    }
+    return ulohy;
+  }
+
+  function pretahni(f, tema) {
+    var CZ = window.CZ, ik = tema.ikona === "jablko" ? "jablko" : "mrkev";
+    function jeTu(x) { return CZ.sloveso(x, "Je tu", "Jsou tu"); }
+    if (f.druh === "nas" && f.b >= 2 && f.b <= 5) {
+      return { typ: "pretahni", fakt: f, tema: tema.id, pretahni: { zlaby: f.b, naKazdy: f.a, ikona: ik },
+        zadani: f.a + " × " + f.b + " = ?", text: jeTu(f.b) + " " + CZ.pocet(f.b, "zlab") + ". Do každého dej " + CZ.pocet(f.a, ik) + ".",
+        otazka: "Kolik " + (ik === "mrkev" ? "mrkví" : "jablek") + " je ve žlabech dohromady?", vysledek: f.a * f.b, mluva: "Do každého žlabu dej " + f.a + "." };
+    }
+    if (f.druh === "del" && f.a * f.b <= 45) {
+      return { typ: "pretahni", fakt: f, tema: tema.id, pretahni: { rozdel: true, celkem: f.a * f.b, zlaby: f.a, ikona: "jablko" },
+        zadani: f.a * f.b + " : " + f.a + " = ?", text: jeTu(f.a) + " " + CZ.pocet(f.a, "zlab") + ". Rozděl do nich spravedlivě " + CZ.pocet(f.a * f.b, "jablko") + ".",
+        otazka: "Kolik jablek je v každém žlabu?", vysledek: f.b, mluva: "Rozděl " + f.a * f.b + " jablek do " + f.a + " žlabů." };
+    }
+    return null;
+  }
+
+  function pexeso(profil, tema) {
+    var fakta = vyber(profil, faktyTematu(tema).filter(function (f) { return f.druh === "nas"; }), 6);
+    var vysledky = {};
+    fakta = fakta.filter(function (f) { if (vysledky[f.a * f.b]) return false; vysledky[f.a * f.b] = 1; return true; }).slice(0, 6);
+    return { typ: "pexeso", tema: tema.id, fakt: { klic: "pexeso", druh: "jiny" }, pary: fakta.map(function (f) { return { a: f.a + " × " + f.b, b: String(f.a * f.b), fakt: f }; }),
+      zadani: "Pexeso", text: "Najdi dvojice: příklad a jeho výsledek.", mluva: "Pexeso. Najdi příklad a jeho výsledek.", vysledek: null };
+  }
+
+  function sestavNasobilku(profil, tema, n) {
     var stavT = profil.tema[tema.id] || { lekci: 0, faze: 0 };
     var fakta = faktyTematu(tema), vybrane, typy;
-    var n = window.LEKCE.pocetUloh;
 
     if (tema.druh === "nasobeni" && tema.faze && stavT.faze === 0) {
       // po řadě: 8 × 1, 8 × 2 … 8 × 10 (deset příkladů, ať je celá řada)
@@ -108,6 +158,7 @@
 
   /* Po odpovědi: posun faktu. prvni = správně napoprvé. */
   function zapis(profil, u, prvni) {
+    if (!u.fakt || u.fakt.klic === "pexeso") return;
     var s = stav(profil, u.fakt.klic);
     if (prvni) {
       s.box = Math.min(5, s.box + 1);
@@ -127,6 +178,12 @@
     st.lekci++;
     var posun = false;
     if (tema.druh === "nasobeni" && tema.faze && st.faze < 2 && napoprve / celkem >= 0.8) { st.faze++; posun = true; }
+    if (window.ULOHY2 && window.ULOHY2.umi(tema.druh)) {
+      var ur = uroven(profil, tema);
+      if (napoprve / celkem >= 0.8 && ur < 5) { st.uroven = ur + 1; posun = "uroven"; }
+      else if (napoprve / celkem < 0.5 && ur > 1) st.uroven = ur - 1;
+      else st.uroven = ur;
+    }
     profil.tema[tema.id] = st;
     profil.lekci++;
     return posun;
@@ -139,9 +196,9 @@
       .slice(0, max || 8)
       .map(function (x) {
         var m = x.klic.match(/^n(\d+)x(\d+)$/), d = x.klic.match(/^d(\d+):(\d+)$/);
-        return { text: m ? m[1] + " × " + m[2] : d ? d[1] + " : " + d[2] : x.klic, spatne: x.s.spatne, spravne: x.s.spravne };
+        return { text: m ? m[1] + " × " + m[2] : d ? d[1] + " : " + d[2] : x.klic.replace(/ = \?$/, ""), spatne: x.s.spatne, spravne: x.s.spravne };
       });
   }
 
-  window.ULOHY = { sestavLekci: sestavLekci, zapis: zapis, konecLekce: konecLekce, faktyTematu: faktyTematu, nejtezsi: nejtezsi, FAZE: FAZE, zamichat: zamichat };
+  window.ULOHY = { sestavLekci: sestavLekci, uroven: uroven, pocetUloh: pocetUloh, zapis: zapis, konecLekce: konecLekce, faktyTematu: faktyTematu, nejtezsi: nejtezsi, FAZE: FAZE, zamichat: zamichat };
 })();

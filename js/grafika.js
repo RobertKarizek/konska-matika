@@ -1,22 +1,23 @@
 /* Veškerá grafika jako SVG kreslené v kódu: koně, předměty, světy. */
 (function () {
+  // barvy srsti jako u skutečných koní; konce = tmavé spodní nohy (hnědák, vraník)
   var SRST = [
-    { id: "hnedak", nazev: "hnědák", barva: "#a0603a" },
-    { id: "ryzak", nazev: "ryzák", barva: "#d2803f" },
-    { id: "plavak", nazev: "plavák", barva: "#e6c47e" },
-    { id: "belous", nazev: "bělouš", barva: "#f1ece4" },
-    { id: "vranik", nazev: "vraník", barva: "#4a3b3a" },
-    { id: "strakac", nazev: "strakáč", barva: "#f6f1ea", skvrny: "#a0603a" },
-    { id: "jablecnak", nazev: "jablečňák", barva: "#cfd3d8", puntiky: "#9aa1aa" }
+    { id: "hnedak", nazev: "hnědák", barva: "#7a4528", konce: "#241a16" },
+    { id: "ryzak", nazev: "ryzák", barva: "#a9582a" },
+    { id: "plavak", nazev: "plavák", barva: "#d6ab63" },
+    { id: "belous", nazev: "bělouš", barva: "#e6e2dc" },
+    { id: "vranik", nazev: "vraník", barva: "#2b2426", konce: "#1a1517" },
+    { id: "strakac", nazev: "strakáč", barva: "#f1ede6", skvrny: "#6b3e24" },
+    { id: "jablecnak", nazev: "jablečňák", barva: "#a9adb4", puntiky: "#dfe2e6" }
   ];
   var HRIVA = [
-    { id: "tmava", nazev: "tmavá", barva: "#3b2a22" },
-    { id: "svetla", nazev: "světlá", barva: "#f4e2b0" },
-    { id: "rezava", nazev: "rezavá", barva: "#b5542a" },
-    { id: "bila", nazev: "bílá", barva: "#fbfaf7" },
-    { id: "ruzova", nazev: "růžová", barva: "#f3a3c4" },
-    { id: "fialova", nazev: "fialová", barva: "#b59ae8" },
-    { id: "modra", nazev: "modrá", barva: "#8fc3f0" }
+    { id: "tmava", nazev: "tmavá", barva: "#1f1714" },
+    { id: "svetla", nazev: "světlá", barva: "#ecdcb4" },
+    { id: "rezava", nazev: "rezavá", barva: "#8e3e1c" },
+    { id: "bila", nazev: "bílá", barva: "#f2efe8" },
+    { id: "ruzova", nazev: "růžová", barva: "#ee9fbf" },
+    { id: "fialova", nazev: "fialová", barva: "#a88be0" },
+    { id: "modra", nazev: "modrá", barva: "#86b9e6" }
   ];
   var ODZNAK = [
     { id: "hvezda", nazev: "hvězdička" },
@@ -36,62 +37,119 @@
 
   var uid = 0;
 
-  /* Kůň z boku, hlavou doprava. kun = { srst, hriva, odznak }, vyber = doplňky (deka, masle…) */
+  /* Kůň z boku, hlavou doprava – realistické proporce a stínování, „živý“ (dýchá, mrká, hýbe ušima a ocasem).
+   * k = { srst, hriva, odznak, jmeno }, volby = doplňky { deka, ohlavka, masle } (barvy). */
   function kun(k, volby) {
     k = k || {};
     volby = volby || {};
     var s = najdi(SRST, k.srst), h = najdi(HRIVA, k.hriva);
-    var c = s.barva, cT = odstin(c, -0.18), cS = odstin(c, 0.25), hb = h.barva, hT = odstin(hb, -0.15);
-    var kopyto = "#5a4232", tvar = s.id === "vranik" ? "#2b2222" : "#3a2b25";
-    var cumak = s.id === "vranik" ? "#6b5653" : odstin(c, 0.35);
     var id = "k" + (++uid);
-    var lic = s.id === "vranik" ? "#d98a9a" : "#f29bb0";
-    var odz = "";
-    var bila = "#fffdf8";
-    if (k.odznak === "hvezda") odz = '<path d="M199 33 l3 6 6 1 -4.5 4 1 6 -5.5 -3 -5.5 3 1 -6 -4.5 -4 6 -1z" fill="' + bila + '"/>';
-    if (k.odznak === "lysina") odz = '<path d="M196 31 C 202 31, 205 40, 207 50 C 209 60, 214 66, 219 72 L 211 76 C 206 68, 202 60, 199 50 C 197 42, 193 36, 196 31z" fill="' + bila + '"/>';
-    if (k.odznak === "srdce") odz = '<path d="M200 46 C 192 40, 194 32, 200 36 C 206 32, 208 40, 200 46z" fill="' + bila + '"/>';
-    var skvrny = s.skvrny ? '<g fill="' + s.skvrny + '"><path d="M92 92 C 108 84, 128 92, 124 108 C 120 124, 96 122, 88 112 C 84 104, 86 96, 92 92z"/><path d="M146 118 C 156 112, 170 118, 166 130 C 160 140, 146 136, 144 128z"/><ellipse cx="186" cy="64" rx="7" ry="6"/></g>' : "";
-    var puntiky = s.puntiky ? '<g fill="' + s.puntiky + '" opacity=".55"><circle cx="80" cy="104" r="5"/><circle cx="96" cy="118" r="4"/><circle cx="72" cy="122" r="4"/><circle cx="110" cy="100" r="3"/><circle cx="88" cy="96" r="3"/></g>' : "";
-    var deka = volby.deka ? '<path d="M84 84 C 104 78, 140 78, 158 86 L 154 124 C 132 130, 104 130, 86 124z" fill="' + volby.deka + '" stroke="' + odstin(volby.deka, -0.25) + '" stroke-width="2"/><path d="M88 118 C 108 124, 132 124, 152 118" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="6 5" opacity=".8"/>' : "";
-    var ohlavka = volby.ohlavka ? '<g fill="none" stroke="' + volby.ohlavka + '" stroke-width="4" stroke-linecap="round"><path d="M184 40 C 190 58, 200 70, 214 80"/><path d="M205 62 C 211 60, 219 64, 224 70"/><path d="M188 52 L 205 62"/></g><circle cx="205" cy="62" r="3" fill="#e8c35a"/>' : "";
-    var masle = volby.masle ? '<g fill="' + volby.masle + '"><path d="M168 48 l-8 -6 0 12z"/><path d="M168 48 l8 -6 0 12z"/><circle cx="168" cy="48" r="3"/></g><g fill="' + volby.masle + '" transform="translate(-118 66)"><path d="M168 48 l-7 -5 0 10z"/><path d="M168 48 l7 -5 0 10z"/><circle cx="168" cy="48" r="2.5"/></g>' : "";
+    var c = s.barva, cS = odstin(c, 0.28), cT = odstin(c, -0.32), cTT = odstin(c, -0.55);
+    var hb = h.barva, hS = odstin(hb, 0.3), hT = odstin(hb, -0.35);
+    var nohy = s.konce || c;                      // hnědák a vraník mají tmavé „ponožky“
+    var kopyto = s.id === "belous" || s.id === "plavak" ? "#6e6258" : "#3a302b";
+    var bila = "#f7f4ee";
 
-    return '<svg class="kun-svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + (k.jmeno ? "kůň " + k.jmeno : "koník") + '">' +
-      '<ellipse cx="122" cy="186" rx="80" ry="8" fill="#000" opacity=".12"/>' +
-      // ocas
-      '<g class="ocas"><path d="M58 92 C 28 84, 14 116, 26 154 C 34 138, 38 128, 46 120 C 40 138, 44 150, 52 160 C 52 136, 58 120, 66 108z" fill="' + hb + '"/>' +
-      '<path d="M54 100 C 36 104, 30 124, 34 140" stroke="' + hT + '" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/></g>' +
-      // vzdálené nohy
-      '<g class="nohy-zadni"><rect x="74" y="126" width="15" height="50" rx="7" fill="' + cT + '"/><rect x="73" y="170" width="17" height="10" rx="3" fill="' + kopyto + '"/>' +
-      '<rect x="150" y="126" width="15" height="50" rx="7" fill="' + cT + '"/><rect x="149" y="170" width="17" height="10" rx="3" fill="' + kopyto + '"/></g>' +
-      // tělo
-      '<ellipse cx="116" cy="112" rx="62" ry="36" fill="' + c + '"/>' +
-      '<ellipse cx="110" cy="100" rx="40" ry="16" fill="' + cS + '" opacity=".35"/>' +
-      skvrny + puntiky + deka +
-      // blízké nohy
-      '<g class="nohy-predni"><rect x="90" y="128" width="16" height="50" rx="8" fill="' + c + '"/><rect x="89" y="172" width="18" height="10" rx="3" fill="' + kopyto + '"/>' +
-      '<rect x="134" y="128" width="16" height="50" rx="8" fill="' + c + '"/><rect x="133" y="172" width="18" height="10" rx="3" fill="' + kopyto + '"/></g>' +
-      // krk a hlava
+    var defs = '<defs>' +
+      '<linearGradient id="' + id + 't" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + cS + '"/><stop offset=".45" stop-color="' + c + '"/><stop offset="1" stop-color="' + cT + '"/></linearGradient>' +
+      '<linearGradient id="' + id + 'n" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + c + '"/><stop offset=".55" stop-color="' + odstin(c, -0.12) + '"/><stop offset=".7" stop-color="' + nohy + '"/><stop offset="1" stop-color="' + odstin(nohy, -0.2) + '"/></linearGradient>' +
+      '<linearGradient id="' + id + 'z" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + cT + '"/><stop offset=".6" stop-color="' + odstin(nohy === c ? cT : nohy, -0.15) + '"/><stop offset="1" stop-color="' + odstin(nohy, -0.35) + '"/></linearGradient>' +
+      '<radialGradient id="' + id + 'l" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="' + id + 's" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="' + id + 'h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + hS + '"/><stop offset=".5" stop-color="' + hb + '"/><stop offset="1" stop-color="' + hT + '"/></linearGradient>' +
+      '<linearGradient id="' + id + 'k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + odstin(kopyto, 0.2) + '"/><stop offset="1" stop-color="' + kopyto + '"/></linearGradient>' +
+      '<clipPath id="' + id + 'c"><path d="' + TELO + '"/></clipPath>' +
+      "</defs>";
+
+    function noha(d, fill) { return '<path d="' + d + '" fill="' + fill + '"/>'; }
+    function kopytoNa(x, y, w) { return '<path d="M' + (x - w / 2) + " " + (y - 9) + " L" + (x + w / 2) + " " + (y - 9) + " L" + (x + w / 2 + 3) + " " + y + " L" + (x - w / 2 - 2) + " " + y + 'z" fill="url(#' + id + 'k)"/>'; }
+
+    // vzdálené nohy (posunuté a tmavší)
+    var vzdalene = '<g class="nohy-vzdalene">' +
+      noha(NOHA_ZADNI, "url(#" + id + "z)") .replace('d="', 'transform="translate(20 -2)" d="') +
+      kopytoNa(115, 282, 18) +
+      noha(NOHA_PREDNI, "url(#" + id + "z)").replace('d="', 'transform="translate(-24 -2)" d="') +
+      kopytoNa(217, 282, 18) + "</g>";
+
+    // ocas – hustý pramen a jemné vlasy
+    var ocas = '<g class="ocas"><path d="M76 110 C 56 112, 46 130, 44 160 C 42 200, 40 230, 50 264 C 54 252, 58 238, 58 222 C 62 238, 66 250, 74 258 C 66 222, 64 182, 70 142 C 72 128, 76 118, 82 114z" fill="url(#' + id + 'h)"/>';
+    [[74, 114, 52, 150, 46, 210, 50, 258], [76, 116, 60, 150, 54, 200, 58, 240], [78, 118, 66, 160, 62, 210, 70, 252], [74, 116, 50, 140, 44, 180, 46, 232], [80, 120, 68, 150, 66, 190, 64, 226]].forEach(function (p, i) {
+      ocas += '<path d="M' + p[0] + " " + p[1] + " C " + p[2] + " " + p[3] + ", " + p[4] + " " + p[5] + ", " + p[6] + " " + p[7] + '" stroke="' + (i % 2 ? hT : hS) + '" stroke-width="' + (1.6 + (i % 3) * 0.6) + '" fill="none" stroke-linecap="round" opacity=".55"/>';
+    });
+    ocas += "</g>";
+
+    // znaky na srsti
+    var znaky = "";
+    if (s.skvrny) znaky += '<g fill="' + s.skvrny + '" clip-path="url(#' + id + 'c)" opacity=".95"><path d="M92 112 C 120 96, 150 112, 146 140 C 142 168, 104 170, 88 150 C 78 136, 80 120, 92 112z"/><path d="M182 128 C 196 118, 222 124, 222 146 C 222 166, 196 172, 184 160 C 174 150, 174 136, 182 128z"/><path d="M262 72 C 274 64, 290 70, 288 84 C 286 98, 270 100, 262 92z"/></g>';
+    if (s.puntiky) {
+      znaky += '<g fill="' + s.puntiky + '" clip-path="url(#' + id + 'c)" opacity=".55">';
+      [[96, 126, 9], [118, 120, 7], [140, 132, 8], [108, 146, 7], [160, 126, 6], [182, 140, 7], [130, 150, 6], [86, 140, 6], [200, 126, 5], [150, 112, 5]].forEach(function (p) {
+        znaky += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + p[2] + '"/>';
+      });
+      znaky += "</g>";
+    }
+    var odz = "";
+    if (k.odznak === "hvezda") odz = '<path d="M304 62 C 308 58, 314 60, 314 65 C 314 70, 308 72, 305 69 C 301 68, 301 64, 304 62z" fill="' + bila + '"/>';
+    if (k.odznak === "lysina") odz = '<path d="M302 58 C 308 56, 313 60, 313 66 C 317 80, 327 96, 337 110 C 339 116, 335 120, 331 118 C 323 104, 311 88, 305 76 C 301 70, 299 62, 302 58z" fill="' + bila + '"/>';
+    if (k.odznak === "srdce") odz = '<path d="M308 72 C 300 66, 301 58, 308 62 C 314 58, 317 66, 308 72z" fill="' + bila + '"/>';
+
+    var deka = volby.deka ? '<path d="M140 104 C 168 108, 196 110, 216 106 L 214 160 C 190 166, 160 166, 140 160z" fill="' + volby.deka + '" stroke="' + odstin(volby.deka, -0.3) + '" stroke-width="2.5"/><path d="M146 152 C 170 158, 196 158, 214 152" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="7 5" opacity=".75"/>' : "";
+    var ohlavka = volby.ohlavka ? '<g fill="none" stroke="' + volby.ohlavka + '" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M288 52 C 290 72, 292 92, 296 112"/><path d="M296 112 C 308 116, 322 118, 334 112"/><path d="M291 76 C 304 80, 318 92, 330 106"/></g><circle cx="296" cy="112" r="3.5" fill="#d9b44a"/>' : "";
+    var masle = volby.masle ? '<g fill="' + volby.masle + '" class="masle"><path d="M264 70 l-9 -7 0 14z"/><path d="M264 70 l9 -7 0 14z"/><circle cx="264" cy="70" r="3.2"/></g><g fill="' + volby.masle + '"><path d="M70 122 l-8 -6 0 12z"/><path d="M70 122 l8 -6 0 12z"/><circle cx="70" cy="122" r="2.8"/></g>' : "";
+
+    // hříva – hustý pás podél hřebene krku a jemné prameny
+    var hriva = '<g class="hriva"><path d="M294 42 C 268 52, 236 88, 202 106 L 206 118 C 236 104, 262 80, 280 62 C 288 56, 294 54, 300 54z" fill="url(#' + id + 'h)"/>';
+    for (var i = 0; i < 14; i++) {
+      var t = i / 13, x = 292 - t * 88, y = 46 + t * 62, d = 16 + (i % 4) * 5 + Math.sin(i) * 3;
+      hriva += '<path d="M' + x.toFixed(1) + " " + y.toFixed(1) + " C " + (x - 4).toFixed(1) + " " + (y + d * 0.4).toFixed(1) + ", " + (x - 10).toFixed(1) + " " + (y + d * 0.7).toFixed(1) + ", " + (x - 15 - (i % 3) * 2).toFixed(1) + " " + (y + d).toFixed(1) +
+        '" stroke="' + (i % 3 === 0 ? hT : i % 3 === 1 ? hb : hS) + '" stroke-width="' + (3.4 - (i % 3) * 0.6) + '" fill="none" stroke-linecap="round"/>';
+    }
+    hriva += '<path d="M292 46 C 298 50, 304 56, 306 66 C 300 62, 294 58, 288 56z" fill="url(#' + id + 'h)"/></g>';
+
+    return '<svg class="kun-svg realny" viewBox="20 10 350 285" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + (k.jmeno ? "kůň " + k.jmeno : "koník") + '">' + defs +
+      '<ellipse cx="170" cy="284" rx="130" ry="9" fill="url(#' + id + 's)"/>' +
+      vzdalene + ocas +
+      // blízké nohy (pod trupem, ať se horní část schová pod tělo)
+      '<g class="nohy-blizke">' + noha(NOHA_ZADNI, "url(#" + id + "n)") + kopytoNa(93, 286, 19) + noha(NOHA_PREDNI, "url(#" + id + "n)") + kopytoNa(241, 286, 20) + "</g>" +
+      '<g class="trup">' +
+      '<path d="' + TELO + '" fill="url(#' + id + 't)"/>' +
+      // svaly a stíny
+      '<g clip-path="url(#' + id + 'c)">' +
+      '<ellipse cx="96" cy="132" rx="42" ry="30" fill="url(#' + id + 'l)"/>' +
+      '<ellipse cx="230" cy="140" rx="28" ry="26" fill="url(#' + id + 'l)"/>' +
+      '<ellipse cx="262" cy="90" rx="18" ry="30" fill="url(#' + id + 'l)" transform="rotate(-40 262 90)"/>' +
+      '<ellipse cx="304" cy="96" rx="14" ry="12" fill="url(#' + id + 'l)"/>' +
+      '<path d="M120 174 C 160 164, 200 166, 236 174 L 236 192 L 120 192z" fill="' + cTT + '" opacity=".22"/>' +
+      '<path d="M208 116 C 216 132, 220 150, 218 170" stroke="' + cT + '" stroke-width="3" fill="none" opacity=".3" stroke-linecap="round"/>' +
+      '<path d="M114 112 C 106 128, 104 146, 108 164" stroke="' + cT + '" stroke-width="3" fill="none" opacity=".28" stroke-linecap="round"/>' +
+      '<path d="M250 104 C 258 118, 262 130, 262 140" stroke="' + cT + '" stroke-width="2.5" fill="none" opacity=".25" stroke-linecap="round"/>' +
+      znaky + "</g>" +
+      deka +
+      "</g>" +
+      // hlava: uši, oko, nozdry, ústa
       '<g class="hlava">' +
-      '<path d="M136 96 C 146 72, 158 54, 172 42 L 200 60 C 190 78, 182 100, 172 122 C 160 124, 146 116, 136 96z" fill="' + c + '"/>' +
-      '<path d="M181 30 L 185 12 L 194 31z" fill="' + c + '"/><path d="M184 28 L 186 18 L 190 29z" fill="' + odstin(c, -0.3) + '" opacity=".5"/>' +
-      '<path d="M192 32 L 200 16 L 204 36z" fill="' + c + '"/>' +
-      '<ellipse cx="194" cy="52" rx="25" ry="20" transform="rotate(28 194 52)" fill="' + c + '"/>' +
-      '<ellipse cx="211" cy="72" rx="17" ry="13" transform="rotate(28 211 72)" fill="' + cumak + '"/>' +
+      '<path class="ucho-vzadu" d="M290 48 C 292 36, 298 26, 304 20 C 306 30, 302 42, 297 50z" fill="' + cT + '"/>' +
+      '<path class="ucho" d="M281 50 C 279 36, 283 24, 289 16 C 293 26, 293 40, 290 50z" fill="' + c + '"/><path d="M284 44 C 284 34, 286 27, 289 22 C 291 30, 290 38, 288 44z" fill="' + cTT + '" opacity=".45"/>' +
       odz +
-      '<ellipse cx="219" cy="74" rx="2.4" ry="3.2" fill="' + tvar + '" opacity=".7"/>' +
-      '<path d="M206 82 C 210 85, 215 85, 218 82" stroke="' + tvar + '" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>' +
-      '<ellipse cx="205" cy="62" rx="6" ry="3.5" fill="' + lic + '" opacity=".55"/>' +
-      '<g class="oko"><ellipse cx="193" cy="49" rx="6.5" ry="7.5" fill="' + tvar + '"/><circle cx="195.5" cy="46" r="2.4" fill="#fff"/><circle cx="191" cy="52" r="1.1" fill="#fff" opacity=".8"/>' +
-      '<path d="M187 43 l-4 -3 M190 41 l-2 -4" stroke="' + tvar + '" stroke-width="1.6" stroke-linecap="round"/></g>' +
-      // hříva
-      '<path d="M176 30 C 166 34, 156 46, 150 58 C 158 54, 156 62, 146 72 C 154 70, 152 78, 140 90 C 150 88, 146 96, 138 104 C 152 100, 162 84, 168 70 C 174 56, 182 44, 186 34z" fill="' + hb + '"/>' +
-      '<path d="M182 30 C 190 30, 196 36, 196 42 C 190 38, 186 38, 182 40 C 184 36, 182 34, 182 30z" fill="' + hb + '"/>' +
-      '<path d="M170 42 C 162 54, 156 66, 148 80" stroke="' + hT + '" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".55"/>' +
-      ohlavka + masle +
-      '</g></svg>';
+      '<ellipse cx="336" cy="122" rx="10" ry="8" fill="' + cTT + '" opacity=".25"/>' +
+      '<path d="M334 116 C 339 113, 343 117, 341 122 C 339 125, 335 124, 335 121" fill="' + cTT + '"/>' +
+      '<path d="M320 133 C 326 136, 334 136, 340 133" stroke="' + cTT + '" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>' +
+      '<path d="M290 104 C 296 96, 306 92, 314 96" stroke="' + cT + '" stroke-width="2.2" fill="none" opacity=".4" stroke-linecap="round"/>' +
+      '<g class="oko"><path d="M293 72 C 297 67, 305 67, 309 72 C 305 77, 297 78, 293 72z" fill="#1e1512"/><circle cx="304" cy="70.5" r="1.6" fill="#fff" opacity=".85"/>' +
+      '<path class="vicko" d="M292 71 C 297 65, 305 65, 310 71" stroke="' + cTT + '" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>' +
+      hriva + ohlavka + masle +
+      "</g></svg>";
   }
+
+  // tělo (trup + krk + hlava) a nohy – sdílené tvary
+  var TELO = "M205 110 C 228 100, 250 82, 266 62 C 272 52, 282 44, 292 46 C 302 52, 318 76, 336 104 C 344 116, 348 126, 342 133 " +
+    "C 336 139, 326 139, 320 134 C 316 131, 314 128, 310 128 C 300 126, 290 118, 288 106 C 286 100, 282 98, 278 100 " +
+    "C 266 116, 256 128, 252 140 C 250 150, 252 160, 246 168 C 240 176, 228 180, 216 180 C 190 184, 150 184, 124 176 " +
+    "C 112 172, 104 168, 100 172 C 84 168, 70 160, 64 146 C 60 134, 62 120, 72 112 C 92 102, 120 102, 140 106 C 165 112, 185 112, 205 110z";
+  var NOHA_ZADNI = "M104 158 C 108 178, 106 196, 98 210 C 94 218, 94 228, 96 238 L 96 262 C 96 268, 98 272, 102 278 L 84 278 " +
+    "C 84 272, 82 268, 82 262 L 82 236 C 80 226, 76 220, 72 214 C 64 200, 62 180, 66 150z";
+  var NOHA_PREDNI = "M222 150 C 238 158, 246 174, 242 196 C 240 206, 240 214, 242 220 L 241 262 C 242 268, 246 272, 250 278 L 232 278 " +
+    "C 230 272, 228 268, 228 262 L 228 226 C 226 220, 224 214, 222 206 C 220 190, 214 176, 206 164z";
 
   /* Malé ikony předmětů (40 × 40) */
   var IKONY = {
@@ -101,6 +159,7 @@
     seno: '<rect x="6" y="12" width="28" height="20" rx="4" fill="#efcd5a"/><path d="M6 18 h28 M6 26 h28" stroke="#c9a232" stroke-width="2"/><path d="M14 12 v20 M26 12 v20" stroke="#b5462f" stroke-width="2.2"/><path d="M9 12 l-2 -3 M15 12 l1 -4 M24 12 l-1 -3 M31 12 l2 -4" stroke="#d9b440" stroke-width="1.6" stroke-linecap="round"/>',
     hvezda: '<path d="M20 5 l4.4 9.2 10 1.4 -7.3 7 1.8 10 -8.9 -4.8 -8.9 4.8 1.8 -10 -7.3 -7 10 -1.4z" fill="#ffd34d" stroke="#e8b52a" stroke-width="1.5" stroke-linejoin="round"/>',
     kun: '<path d="M12 34 C 12 24, 14 16, 20 10 L 22 4 L 25 10 C 31 12, 34 18, 33 24 L 28 26 C 26 23, 23 22, 22 24 C 22 28, 24 31, 26 34z" fill="#a0603a"/><path d="M20 10 C 16 14, 13 22, 12 30 C 16 24, 18 18, 22 13z" fill="#3b2a22"/><circle cx="26" cy="15" r="1.8" fill="#2b2222"/>',
+    pytel: '<path d="M12 12 C 10 18, 8 26, 10 32 C 12 36, 28 36, 30 32 C 32 26, 30 18, 28 12z" fill="#d8b98a"/><path d="M12 12 C 16 9, 24 9, 28 12 L 26 15 C 22 13, 18 13, 14 15z" fill="#b8955f"/><path d="M14 9 C 18 6, 22 6, 26 9" stroke="#8a6a3c" stroke-width="2.4" fill="none" stroke-linecap="round"/><text x="20" y="28" font-size="10" text-anchor="middle" fill="#7a5a2c" font-family="sans-serif" font-weight="700">10</text>',
     zlab: '<path d="M4 18 h32 l-4 14 h-24z" fill="#9b6a43"/><path d="M4 18 h32" stroke="#7a5233" stroke-width="3"/><path d="M8 32 v4 M32 32 v4" stroke="#7a5233" stroke-width="3" stroke-linecap="round"/>',
     box: '<rect x="4" y="6" width="32" height="28" rx="3" fill="#c78b56"/><rect x="8" y="10" width="24" height="20" rx="2" fill="#f5e3c4"/><path d="M8 20 h24" stroke="#c78b56" stroke-width="2"/>'
   };
@@ -158,5 +217,36 @@
       '<g class="zrcadlo" transform="matrix(-1 0 0 1 798.5 0)">' + bezDefs + "</g>" + bezDefs + "</svg>";
   }
 
-  window.GRAFIKA = { kun: kun, ikona: ikona, svet: svet, svetSiroky: svetSiroky, SRST: SRST, HRIVA: HRIVA, ODZNAK: ODZNAK, odstin: odstin };
+  /* Kamarádi z výletů: hříbě a poník jsou menší koně, kočka sedí. */
+  function kamarad(k) {
+    if (k === "hribe") return kun({ srst: "ryzak", hriva: "svetla", odznak: "hvezda" });
+    if (k === "ponik") return kun({ srst: "strakac", hriva: "tmava", odznak: "lysina" });
+    return '<svg class="kocka-svg" viewBox="0 0 120 120" aria-label="kočka">' +
+      '<defs><radialGradient id="kockaG" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f0a35e"/><stop offset="1" stop-color="#b8692c"/></radialGradient></defs>' +
+      '<ellipse cx="62" cy="112" rx="34" ry="5" fill="#000" opacity=".15"/>' +
+      '<path d="M88 104 C 112 102, 114 76, 100 70" stroke="#b8692c" stroke-width="8" fill="none" stroke-linecap="round"/>' +
+      '<path d="M36 108 C 30 84, 36 62, 56 56 C 76 52, 92 66, 92 90 C 92 104, 86 110, 76 110z" fill="url(#kockaG)"/>' +
+      '<path d="M48 70 C 56 74, 64 74, 72 70 M44 84 C 54 88, 66 88, 78 84" stroke="#a35a22" stroke-width="3" fill="none" opacity=".6" stroke-linecap="round"/>' +
+      '<ellipse cx="60" cy="40" rx="24" ry="21" fill="url(#kockaG)"/>' +
+      '<path d="M40 30 L 38 8 L 54 22z M80 30 L 82 8 L 66 22z" fill="#c8773a"/><path d="M42 26 L 41 14 L 50 22z M78 26 L 79 14 L 70 22z" fill="#f2b8a8"/>' +
+      '<path d="M50 38 C 52 34, 56 34, 57 38 C 56 41, 52 41, 50 38z M63 38 C 64 34, 68 34, 70 38 C 68 41, 64 41, 63 38z" fill="#5c8a3a"/><path d="M53.5 35.5 v5 M66.5 35.5 v5" stroke="#1c1c1c" stroke-width="1.8"/>' +
+      '<path d="M57 46 L 63 46 L 60 49z" fill="#e88a8a"/><path d="M60 49 C 58 53, 54 53, 52 51 M60 49 C 62 53, 66 53, 68 51" stroke="#6b3a1a" stroke-width="1.4" fill="none"/>' +
+      '<path d="M44 46 L 26 44 M44 49 L 27 51 M76 46 L 94 44 M76 49 L 93 51" stroke="#fff" stroke-width="1" opacity=".8"/>' +
+      '<path d="M48 108 C 48 98, 54 96, 56 108 M64 108 C 64 98, 70 96, 72 108" fill="#f0a35e" stroke="#a35a22" stroke-width="1.5"/></svg>';
+  }
+
+  /* Stáj z obchodu */
+  function staj(kdo) {
+    var drevo = kdo === "julinka" ? "#c0503f" : "#8a5a36", tmave = odstin(drevo, -0.3);
+    return '<svg class="staj-svg" viewBox="0 0 200 160" aria-label="stáj">' +
+      '<path d="M10 70 L 100 18 L 190 70z" fill="' + tmave + '"/><path d="M4 74 L 100 16 L 196 74" stroke="#5a3a22" stroke-width="6" fill="none" stroke-linecap="round"/>' +
+      '<rect x="20" y="70" width="160" height="84" fill="' + drevo + '"/>' +
+      [30, 50, 70, 90, 110, 130, 150, 170].map(function (x) { return '<line x1="' + x + '" y1="72" x2="' + x + '" y2="152" stroke="' + tmave + '" stroke-width="1.5" opacity=".5"/>'; }).join("") +
+      '<rect x="74" y="94" width="52" height="60" fill="#f4e6cc"/><path d="M74 94 L 126 154 M126 94 L 74 154" stroke="' + drevo + '" stroke-width="5"/><rect x="74" y="94" width="52" height="60" fill="none" stroke="#5a3a22" stroke-width="3"/>' +
+      '<rect x="88" y="42" width="24" height="20" fill="#f4e6cc" stroke="#5a3a22" stroke-width="3"/>' +
+      '<rect x="30" y="92" width="30" height="22" fill="#2a2420"/><rect x="140" y="92" width="30" height="22" fill="#2a2420"/>' +
+      '<path d="M30 112 h30 M140 112 h30" stroke="#5a3a22" stroke-width="3"/><path d="M14 154 h172" stroke="#5a3a22" stroke-width="4"/></svg>';
+  }
+
+  window.GRAFIKA = { kun: kun, ikona: ikona, svet: svet, svetSiroky: svetSiroky, kamarad: kamarad, staj: staj, SRST: SRST, HRIVA: HRIVA, ODZNAK: ODZNAK, odstin: odstin };
 })();

@@ -1,10 +1,10 @@
 /* Service worker: aplikace funguje i bez internetu.
  * Při každé změně souborů zvyš VERZE, ať si telefony stáhnou novou verzi. */
-var VERZE = "konska-matika-20261025-090820";
+var VERZE = "konska-matika-20261025-095150";
 var SOUBORY = [
   "./", "index.html", "styles.css", "manifest.webmanifest",
-  "data/ucivo.js",
-  "js/cestina.js", "js/uloziste.js", "js/zvuky.js", "js/hlas.js", "js/grafika.js", "js/ulohy.js", "js/napoveda.js", "js/app.js",
+  "data/ucivo.js", "data/pribeh.js",
+  "js/cestina.js", "js/uloziste.js", "js/zvuky.js", "js/hlas.js", "js/grafika.js", "js/ulohy.js", "js/ulohy2.js", "js/napoveda.js", "js/hry.js", "js/app.js",
   "icons/ikona.svg", "icons/ikona-180.png", "icons/ikona-192.png", "icons/ikona-512.png"
 ];
 
