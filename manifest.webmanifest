@@ -1,0 +1,17 @@
+{
+  "name": "Koňská matika",
+  "short_name": "Koňská matika",
+  "description": "Veselé procvičování matematiky v koňském světě.",
+  "lang": "cs",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f0ff",
+  "theme_color": "#7a5ea8",
+  "icons": [
+    { "src": "icons/ikona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/ikona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/ikona.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
